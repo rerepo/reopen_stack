@@ -390,16 +390,18 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := libe2elnxwr
 
-LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(WR_DIR)/*.c))
-LOCAL_SRC_FILES := $(filter-out enbapp/src/wr_mi.c,$(LOCAL_SRC_FILES))
-LOCAL_SRC_FILES := $(filter-out enbapp/src/wr_smm_enbapp.c,$(LOCAL_SRC_FILES))
-LOCAL_SRC_FILES := $(filter-out enbapp/src/wr_umm_lclctxtrel.c,$(LOCAL_SRC_FILES))
-LOCAL_SRC_FILES := $(filter-out enbapp/src/wr_umm_sec.c,$(LOCAL_SRC_FILES))
-LOCAL_SRC_FILES := $(filter-out enbapp/src/wr_umm_uecap.c,$(LOCAL_SRC_FILES))
+enb_wr := enbapp/src
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_wr)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_mi.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_smm_enbapp.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_umm_lclctxtrel.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_umm_sec.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_umm_uecap.c,$(LOCAL_SRC_FILES))
 
 ifeq ($(OAM_ENABLE),)
-LOCAL_SRC_FILES := $(filter-out enbapp/src/wr_smm_enbapp_cmnplatutils.c,$(LOCAL_SRC_FILES))
-LOCAL_SRC_FILES := $(filter-out enbapp/src/wr_smm_dyncfg.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_smm_enbapp_cmnplatutils.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_smm_dyncfg.c,$(LOCAL_SRC_FILES))
 endif
 #$(warning LOCAL_SRC_FILES == $(LOCAL_SRC_FILES))
 
@@ -407,13 +409,40 @@ endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXWROPTS) $(CCwrFLAGS)
+
+LOCAL_OBJECT_FLAGS_APPEND := $(call convert-object-flags,$(enb_wr)/wr_smm_rrc.o,-DLCSMNHMILNH -DLCLNH)
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_rlc.o,-DLCKWMILKW -DLCPJMILPJ -DLCLKW)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_mac.o,-DLCRGMILRG  -DLCLRG -DLCSMMILRG)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_s1ap.o,-DLCSMMILSZ -DLCLSZ -DSZ_ENB)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_x2ap.o $(enb_wr)/wr_plat.o,-DLCSMMILCZ -DLCLCZ -DCZ_ENB)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_sctp.o,-DLCSMSBMILSB -DLCLSB -DLSB4 -DLSB8)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_tucl.o,-DLCSMHIMILHI)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_egtp.o,-DLCSMMILEG -DLCLEG)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_enbapp_rsys.o,-DLWLCSMMILWR  -DLWLCSWR -DLWLCWRMILWR -DSM -UPTSMMILWR)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_enbapp_utils.o,-DLWLCSMMILWR  -DLWLCSWR -DLWLCWRMILWR -DSM)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_rrm.o,-ULCSMMILWR  -ULCSWR -ULCWRMILWR)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_pdcp.o,-DLCSMMILPJ -DLCPJMILPJ -DLCLPJ)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_cl.o $(enb_wr)/wr_emm.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_ptmi.o,-DLCWRMILWR -DLWLCWRMILWR -DLWLCWR -DSM -DLCLWR)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_ex_ms.o,-ULCWR -DRG  -DLWLCWR  -DLWLCLWR   -DLCLWR -DSM)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_lwr.o,-DLWLCSMMILWR -DSM  -DLCLWR -DLWLCLWR -DLCSMMILWR)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_emm_anr.o $(enb_wr)/wr_emm_ecsfb_anr.o,-DDG)
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_tmr.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
+
 # wr_ex_ms
-LOCAL_CFLAGS += -ULCWR -DRG  -DLWLCWR  -DLWLCLWR   -DLCLWR -DSM
+#LOCAL_CFLAGS += -ULCWR -DRG  -DLWLCWR  -DLWLCLWR   -DLCLWR -DSM
 # wr_smm_enbapp_rsys
-LOCAL_CFLAGS += -DLWLCSMMILWR  -DLWLCSWR -DLWLCWRMILWR -DSM -UPTSMMILWR
+#LOCAL_CFLAGS += -DLWLCSMMILWR  -DLWLCSWR -DLWLCWRMILWR -DSM -UPTSMMILWR
 # wr_smm_mac
-LOCAL_CFLAGS += -DLCRGMILRG  -DLCLRG -DLCSMMILRG
+#LOCAL_CFLAGS += -DLCRGMILRG  -DLCLRG -DLCSMMILRG
 # wr_smm_x2ap
-LOCAL_CFLAGS += -DLCSMMILCZ -DLCLCZ -DCZ_ENB
+#LOCAL_CFLAGS += -DLCSMMILCZ -DLCLCZ -DCZ_ENB
+# wr_smm_rlc
+#LOCAL_CFLAGS += -DLCKWMILKW -DLCPJMILPJ -DLCLKW
+# wr_smm_rrc
+#LOCAL_CFLAGS += -DLCSMNHMILNH -DLCLNH
+
+#LOCAL_CFLAGS := $(sort $(LOCAL_CFLAGS))
 
 include $(BUILD_STATIC_LIBRARY)
