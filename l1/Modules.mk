@@ -60,7 +60,7 @@ include $(BUILD_STATIC_LIBRARY)
 ###################### libprcl1_ns ######################
 include $(CLEAR_VARS)
 
-LOCAL_PREBUILT_LIBS := libprcl1_ns:libprcl1_ns.a
+LOCAL_PREBUILT_LIBS := libprcl1_ns:$(l1_cpul_rio)/libprcl1_ns.a
 
 #LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
 
