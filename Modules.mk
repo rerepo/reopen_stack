@@ -383,12 +383,20 @@ $(BLD_LNX_WR_E2E_OBJS1):
 	HIOPTS='$(HIOPTS)' SBOPTS='$(SBOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(WR_DIR)' IN_DIR='$(WR_DIR)' \
 	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c" OAM_ENABLE='$(OAM_ENABLE)' 
 
-#	$(CC)  -o$(OUT_DIR)/wr_emm_eom.$(OBJ) -I$(SS_DIR) $(COPTS) $(IOPTS) $(POPTS) $(CCwrFLAGS) \
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXWROPTS)'
+# SMPOPTS='$(CCLNXSMOPTS)' [no]
+# HIOPTS='$(HIOPTS)' [no]
+# SBOPTS='$(SBOPTS)' [no]
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  -o$(OUT_DIR)/wr_sw_version.$(OBJ) -I$(SS_DIR) $(COPTS) $(IOPTS) $(POPTS) $(CCwrFLAGS) \
 
 ###################### libe2elnxwr ######################
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := libe2elnxwr
+#LOCAL_MODULE := libe2elnxwr
 
 enb_wr := enbapp/src
 
@@ -430,19 +438,750 @@ LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_lwr.o,-DLW
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_emm_anr.o $(enb_wr)/wr_emm_ecsfb_anr.o,-DDG)
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_tmr.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
 
-# wr_ex_ms
-#LOCAL_CFLAGS += -ULCWR -DRG  -DLWLCWR  -DLWLCLWR   -DLCLWR -DSM
-# wr_smm_enbapp_rsys
-#LOCAL_CFLAGS += -DLWLCSMMILWR  -DLWLCSWR -DLWLCWRMILWR -DSM -UPTSMMILWR
-# wr_smm_mac
-#LOCAL_CFLAGS += -DLCRGMILRG  -DLCLRG -DLCSMMILRG
-# wr_smm_x2ap
-#LOCAL_CFLAGS += -DLCSMMILCZ -DLCLCZ -DCZ_ENB
-# wr_smm_rlc
-#LOCAL_CFLAGS += -DLCKWMILKW -DLCPJMILPJ -DLCLKW
-# wr_smm_rrc
-#LOCAL_CFLAGS += -DLCSMNHMILNH -DLCLNH
+#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_sec)/wr_smm_tmr.o,$(COPTS_NO_WARN))
+#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_sec)/wr_smm_tmr.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
+#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_sec)/wr_smm_tmr.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
 
 #LOCAL_CFLAGS := $(sort $(LOCAL_CFLAGS))
 
+#include $(BUILD_STATIC_LIBRARY)
+
+
+###################### enb_cpuh ######################
+#include $(CLEAR_VARS)
+
+LOCAL_MODULE := enb_cpuh
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+#LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+#LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
+
+LOCAL_STATIC_LIBRARIES += librm
+
+LOCAL_STATIC_LIBRARIES += libcz
+#LOCAL_STATIC_LIBRARIES += libe2elnxwr
+LOCAL_STATIC_LIBRARIES += libeg
+LOCAL_STATIC_LIBRARIES += libhi
+LOCAL_STATIC_LIBRARIES += libnh
+LOCAL_STATIC_LIBRARIES += librl
+LOCAL_STATIC_LIBRARIES += libsb
+LOCAL_STATIC_LIBRARIES += libsz
+
+LOCAL_STATIC_LIBRARIES += libmt
+LOCAL_STATIC_LIBRARIES += libmtsec
+
+LOCAL_STATIC_LIBRARIES += libcm
+
+
+LOCAL_STATIC_LIBRARIES += libprcl1 libprcl1_ns
+LOCAL_STATIC_LIBRARIES += libprc_commons
+
+LOCAL_LDFLAGS += -EL# -lrt -lm -lpthread
+LOCAL_LDLIBS += -lrt -lpthread
+
+include $(BUILD_EXECUTABLE)
+
+
+######################
+
+#	$(CC)  -o$(OUT_DIR)/hmac.$(OBJ) -I$(SS_DIR) $(COPTS_NO_WARN) $(IOPTS) $(POPTS) $(CCwrFLAGS) \
+
+###################### libmtsec ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libmtsec
+
+enb_sec := mt/security
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_sec)/*.c))
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(COPTS_NO_WARN) $(LNXIOPTS) $(CCLNXWROPTS) $(CCwrFLAGS)
+
 include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for RRM
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+_rm_CCrmFLAGS=-DRGM_LC -DRGM_LWLC -DLRM_LWLC -DRMU_LWLC -URMU_NPLC -DLWLCSMRMMILRM -DLCSMRMMILRM -DSM -DSS_MT_TMR -DRM_INTF
+
+######################
+
+$(BLD_LNX_RM_OBJS):
+	@$(MAKE) -f rm.mak $(CPUH_OBJ)/librm.a COPTS='' AR=$(LNX_AR) \
+        LOPTS='$(LNXLOPTS)' LOPTSCPP='$(LNXLOPTSCPP)' POPTS='$(CCLNXWROPTS)' SMPOPTS='$(CCLNXSMOPTS)'\
+	HIOPTS='$(HIOPTS)' SBOPTS='$(SBOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(RM_DIR)' IN_DIR='$(RM_DIR)' \
+        OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' SRC="c"  SRC1="cpp"  CC='$(LNX_GPP_CC) -c' LL='$(LNX_GPP_LD)' CM_INC='$(CM_INC)'
+	mkdir -p ./lib/
+	cp $(CPUH_OBJ)/librm.a ./lib/ 
+	rm -rf $(CPUH_OBJ)/rm_* $(CPUH_OBJ)/librm.a
+
+# COPTS=''
+# LOPTS='$(LNXLOPTS)' [no]
+# LOPTSCPP='$(LNXLOPTSCPP)' [no]
+# POPTS='$(CCLNXWROPTS)'
+# SMPOPTS='$(CCLNXSMOPTS)' [no]
+# HIOPTS='$(HIOPTS)' [no]
+# SBOPTS='$(SBOPTS)' [no]
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  $(COPTS) $(IOPTS) $(POPTS) $(CCrmFLAGS) $(IN_DIR)/rm.$(SRC1) -o \
+
+###################### librm ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := librm
+
+enb_rm := lterrm/src
+
+#LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_rm)/*.c))
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_rm)/*.cpp))
+#LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_mi.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNXIOPTS) $(CCLNXWROPTS) $(_rm_CCrmFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product cm - script generated.
+#Only the $(CCcmFLAGS) may be modified.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+_cm_CCrmFLAGS=-DLRM_LWLC -DRMU_LWLC -URMU_NPLC -DRGM_LWLC -DLWLCSMRMMILRM -DLCSMRMMILRM -DSM -DRM_INTF
+ifeq (${BLDENV}, lnx_e2e_ms)
+_cm_CCcmFLAGS=-DSS_MT_TMR -DSS_FLOAT -ULTE_TDD -DRGR_V1 -DLSZV1 $(_cm_CCrmFLAGS)  #<---Insert cm specific defines here
+else
+ifeq (${BLDENV},lnx_ms_withoutdiag)
+_cm_CCcmFLAGS=-DSS_MT_TMR -DSS_FLOAT -ULTE_TDD -DRGR_V1 -DLSZV1 $(_cm_CCrmFLAGS)  #<---Insert cm specific defines here
+else
+_cm_CCcmFLAGS=-DSS_MT_TMR -DSS_FLOAT -ULTE_TDD -DRGR_V1 -DLSZV1 -DVE_SB_SCTP $(_cm_CCrmFLAGS)#<---Insert cm specific defines here
+endif
+endif
+
+ifeq (${BLDENV}, lnx_e2e_ms)
+_cm_CCsmFLAGS=-DHI -DSB -DEG -DWR -DKW -DKW_PDCP -DPJ -DSZ -DYS -DRG -DNH -UWR_SM_LOG_TO_FILE -DRGR_SI_SCH -UTA_NEW -DSI_NEW -DCZ $(_cm_CCrmFLAGS)
+else
+ifeq (${BLDENV},lnx_ms_withoutdiag)
+_cm_CCsmFLAGS=-DHI -DSB -DEG -DWR -DKW -DKW_PDCP -DPJ -DSZ -DYS -DRG -DNH -UWR_SM_LOG_TO_FILE -DRGR_SI_SCH -UTA_NEW -DSI_NEW -DCZ $(_cm_CCrmFLAGS)
+else
+_cm_CCsmFLAGS=-DHI -DSB -DEG -DWR -DKW -DKW_PDCP -DPJ -DSZ -DYS -DRG -DNH -UVE_SM_LOG_TO_FILE -DRGR_SI_SCH -DTA_NEW -DSI_NEW -DCZ $(_cm_CCrmFLAGS)
+endif
+endif
+
+_cm_EGTOPTS=-DEG -DLCEGT -DLCEGUIEGT -DEGTP_U
+_cm_LEGOPTS=-DLCSMMILEG -DLCLEG -DSM -DEG -DLCEGMILEG -DLCSMEGMILEG -DEGTP_U
+_cm_LHIOPTS=-DLCHIMILHI -DSM -DLCLHI
+_cm_HITOPTS=-DLCHIT -DLCSBLIHIT -DLCHIUIHIT -DHI_REL_1_4 -DLCEGLIHIT 
+_cm_SCTOPTS=-DLCSCT 
+_cm_LRGOPTS= -DLCSMMILRG -DLCLRG -DSM -DRG -DLCRGMILRG
+_cm_LSBOPTS=-DLCLSB -DSM -DSB -DLSB4  -DLSB8 -DHI_REL_1_4
+_cm_LSZOPTS=-DLCLSZ -DLCSCT -DSM -DSZ -DLCSMSZMILSZ  -DLCSZMILSZ -DSZ_ENB
+_cm_SZTOPTS=-DSZ -DUZ -DLCUZLISZT -DLWLCUZLISZT -DLCSZUISZT -DLCSZT -DPTSZUISZT
+_cm_LCZOPTS=-DLCLCZ -DLCSCT -DSM -DCZ -DLCSMCZMILCZ  -DLCCZMILCZ 
+_cm_CZTOPTS=-DCZ -DRS -DLCRSLICZT -DLWLCRSLICZT -DLCCZUICZT -DLCCZT -DPTCZUICZT
+_cm_RGROPTS=-DRG -DLCWRLIRGR -DLCRGR -DLWLCWRLIRGR -DLCRGUIRGR
+_cm_CTFOPTS=-DLCCTF -DWR -DLCWRLICTF -DLCYSUICTF
+_cm_LNHOPTS=-DNH -DSM -DLCLNH -DLCSMMILNH -DLCSMNHMILNH -DLCNHMILNH
+_cm_NHUOPTS=-DLCNHU -DWR -DNX -DLCWRLINHU -DLCNXLINHU -DLCNHUINHU
+_cm_LWROPTS=-DWR -DSM -DLCLWR -ULCSMMILWR -ULCWRMILWR -DWR_RELAY -DEU_DAT_APP
+_cm_LPJOPTS=-DPJ -DSM -DLCLPJ -DLCSMMILPJ -DLCPJMILPJ -DKW_PDCP
+_cm_LKWOPTS=-DKW -DSM -DLCLKW -DLCSMMILKW -DLCKWMILKW -DKW_PDCP
+_cm_PJUVEOPTS=-DPJ -DLCPJU -DWR -DNX -DNH -DLCWRLIPJU -DLCPJUIPJU -DLCNHLIPJU
+_cm_CKWOPTS=-DLCNHLICKW -DLCCKW -DLCKWUICKW -DKW -DNH
+_cm_CPJOPTS=-DPJ -DLCCPJ -DNH -DLCNHLICPJ -DLCPJUICPJ
+_cm_CRGOPTS= -DLCNHLICRG -DLCCRG -DLCRGUICRG -DRG
+_cm_KWUOPTS=-DKW -DNH -DLCKWUIKWU -DLCKWU -DLCNHLIKWU -DCCPU_OPT
+_cm_RGUOPTS= -DRG -DKW -DLCKWLIRGU -DLCRGU -DLCRGUIRGU -DCCPU_OPT
+_cm_TFUOPTS=-UTFU_TDD -DTFU_VER_2 -DLCTFU 
+_cm_LYSOPTS=-DYS -DLCLYS -DLCSMMILYS -DLCYSMILYS
+
+######################
+
+#
+# Making Common Libraries
+#
+$(BLD_LNX_CM_OBJS):
+	@$(MAKE) -f cm.mak $(CPUH_OBJ)/libcm.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXCMOPTS)' IOPTS='$(LNXIOPTS)' IN_DIR='$(CM_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)'  CM_INC='$(CM_INC)'
+	@$(MAKE) -f rl.mak $(CPUH_OBJ)/librl COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+        LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXCMOPTS)' IOPTS='$(LNXIOPTS)' IN_DIR='$(RLOG_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' RLOG_INC='$(RLOG_INC)' SRC="c"
+	@$(MAKE) -f cm.mak $(CPUL_OBJ)/libcm.a COPTS=$(LNX_CFLAG_CPUL) AR=$(LNX_AR) \
+        LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXCMOPTS)' IOPTS='$(LNXIOPTS)' IN_DIR='$(CM_DIR)' \
+        OUT_DIR='$(CPUL_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)'  CM_INC='$(CM_INC)'
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXCMOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC) -c -o $(OUT_DIR)/ckw.o $(COPTS) $(IOPTS) $(POPTS) $(CKWOPTS) $(CCcmFLAGS) $(IN_DIR)/ckw.c
+
+###################### libcm ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libcm
+
+enb_cm := cm
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_cm)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/cm_mem_wl.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/cm_ss.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/egt_util.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/lve.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/ss_ptsp.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXCMOPTS) $(_cm_CCcmFLAGS)
+
+LOCAL_OBJECT_FLAGS_APPEND := $(call convert-object-flags,$(enb_cm)/ckw.o,$(_cm_CKWOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cm_tpt.o,$(_cm_SCTOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cpj.o,$(_cm_CPJOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/crg.o,$(_cm_CRGOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/kwu.o,$(_cm_KWUOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lkw.o,$(_cm_LKWOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lnh.o,$(_cm_LNHOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lrg.o,$(_cm_LRGOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/nhu.o $(enb_cm)/nhu_pk.o $(enb_cm)/nhu_unpk.o $(enb_cm)/nhu_3gpk.o $(enb_cm)/nhu_3gunpk.o,-DNX $(_cm_NHUOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/pju.o,$(_cm_PJUVEOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/rgu.o,$(_cm_RGUOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/rgr.o,$(_cm_RGROPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/ctf.o,$(_cm_CTFOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/tfu.o,$(_cm_TFUOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lpj.o,$(_cm_LPJOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lys.o,$(_cm_LYSOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/leg.o,$(_cm_LEGOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/egt.o,$(_cm_EGTOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lhi.o,$(_cm_LHIOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/hit.o,$(_cm_HITOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lsb.o,$(_cm_LSBOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/sct.o,$(_cm_SCTOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lsz.o,$(_cm_LSZOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/szt.o $(enb_cm)/szt_pk.o $(enb_cm)/szt_3gpk.o $(enb_cm)/szt_unpk.o $(enb_cm)/szt_3gunpk.o,$(_cm_SZTOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lcz.o,$(_cm_LCZOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/czt.o $(enb_cm)/czt_pk.o $(enb_cm)/czt_unpk.o $(enb_cm)/rmu_pk.o $(enb_cm)/rmu_unpk.o $(enb_cm)/rmu.o $(enb_cm)/rgm.o $(enb_cm)/lrm.o,$(_cm_CZTOPTS))
+#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/.o,$(_cm_))
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+######################
+
+# cm cpul
+#	@$(MAKE) -f cm.mak $(CPUL_OBJ)/libcm.a COPTS=$(LNX_CFLAG_CPUL) AR=$(LNX_AR) \
+        LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXCMOPTS)' IOPTS='$(LNXIOPTS)' IN_DIR='$(CM_DIR)' \
+        OUT_DIR='$(CPUL_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)'  CM_INC='$(CM_INC)'
+
+# COPTS=$(LNX_CFLAG_CPUL)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXCMOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+###################### libcm_l ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libcm_l
+
+enb_cm := cm
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_cm)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/cm_mem_wl.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/cm_ss.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/egt_util.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/lve.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_cm)/ss_ptsp.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXCMOPTS) $(_cm_CCcmFLAGS)
+
+LOCAL_OBJECT_FLAGS_APPEND := $(call convert-object-flags,$(enb_cm)/ckw.o,$(_cm_CKWOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cm_tpt.o,$(_cm_SCTOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cpj.o,$(_cm_CPJOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/crg.o,$(_cm_CRGOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/kwu.o,$(_cm_KWUOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lkw.o,$(_cm_LKWOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lnh.o,$(_cm_LNHOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lrg.o,$(_cm_LRGOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/nhu.o $(enb_cm)/nhu_pk.o $(enb_cm)/nhu_unpk.o $(enb_cm)/nhu_3gpk.o $(enb_cm)/nhu_3gunpk.o,-DNX $(_cm_NHUOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/pju.o,$(_cm_PJUVEOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/rgu.o,$(_cm_RGUOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/rgr.o,$(_cm_RGROPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/ctf.o,$(_cm_CTFOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/tfu.o,$(_cm_TFUOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lpj.o,$(_cm_LPJOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lys.o,$(_cm_LYSOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/leg.o,$(_cm_LEGOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/egt.o,$(_cm_EGTOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lhi.o,$(_cm_LHIOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/hit.o,$(_cm_HITOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lsb.o,$(_cm_LSBOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/sct.o,$(_cm_SCTOPTS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lsz.o,$(_cm_LSZOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/szt.o $(enb_cm)/szt_pk.o $(enb_cm)/szt_3gpk.o $(enb_cm)/szt_unpk.o $(enb_cm)/szt_3gunpk.o,$(_cm_SZTOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/lcz.o,$(_cm_LCZOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/czt.o $(enb_cm)/czt_pk.o $(enb_cm)/czt_unpk.o $(enb_cm)/rmu_pk.o $(enb_cm)/rmu_unpk.o $(enb_cm)/rmu.o $(enb_cm)/rgm.o $(enb_cm)/lrm.o,$(_cm_CZTOPTS))
+#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/.o,$(_cm_))
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for RL
+#-------------------------------------------------------------#
+
+#rlPOSTPROCOPTS=-DSS_LINUX -DUSE_RLOG_DATA_TYPES 
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+######################
+
+# rlog
+#	@$(MAKE) -f rl.mak $(CPUH_OBJ)/librl COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+        LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXCMOPTS)' IOPTS='$(LNXIOPTS)' IN_DIR='$(RLOG_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' RLOG_INC='$(RLOG_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXCMOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC) $(COPTS) $(IOPTS) $(POPTS) $(IN_DIR)/rl_rlog.$(SRC) -rdynamic -o $(OUT_DIR)/rl_rlog.$(OBJ)
+
+#	g++ $(rlPOSTPROCOPTS) $(rlPOSTPROCSRCS) -o	$(OUT_DIR)/rlogapp
+
+###################### librl ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := librl
+
+enb_rl := rlog
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_rl)/*.c))
+#LOCAL_SRC_FILES := $(filter-out $(enb_rl)/rl_postproc.cpp,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXCMOPTS)
+
+#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_rl)/rl_rlog.o,-rdynamic)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product mt - script generated.
+#Only the $(CCmtFLAGS) may be modified.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCmtFLAGS=-UBIT_64 -DSS_MT_TMR -USS_LOGGER_SUPPORT -DEGTP_U#<---Insert mt specific defines here
+
+######################
+
+#
+# making Multi Threaded SSI
+#
+$(BLD_LNX_SS_OBJS):
+	@$(MAKE) -f mt.mak $(CPUH_OBJ)/libmt.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXMTOPTS)' IOPTS='$(LNXIOPTS)' IN_DIR='$(MT_DIR)' \
+        OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)'  \
+        CM_INC='$(CM_INC)' BLDENV='$(BLDENV)' SRC="c"
+	@$(MAKE) -f mt.mak $(CPUL_OBJ)/libmt.a COPTS=$(LNX_CFLAG_CPUL) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXMTOPTS)' IOPTS='$(LNXIOPTS)' IN_DIR='$(MT_DIR)' \
+        OUT_DIR='$(CPUL_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)'  \
+        CM_INC='$(CM_INC)' BLDENV='$(BLDENV)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)'
+# POPTS='$(CCLNXMTOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC) -c -o $(OUT_DIR)/mt_id.o $(COPTS) $(IOPTS) $(POPTS) $(CCmtFLAGS) $(IN_DIR)/mt_id.c
+
+###################### libmt ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libmt
+
+enb_mt := mt
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_mt)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_acc.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_rtr.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXMTOPTS) $(CCmtFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+###################### libmt_l ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libmt_l
+
+enb_mt := mt
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_mt)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_acc.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_rtr.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXMTOPTS) $(CCmtFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product CZ - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+#product specific options should be identified.
+CCczFLAGS=-DLCLCZ -DLCSCT -DCZ -DSM 
+
+######################
+
+$(BLD_LNX_CZ_OBJS1):
+	@$(MAKE) -f cz.mak $(CPUH_OBJ)/libcz.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXCZOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(CZ_DIR)' IN_DIR='$(CZ_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)'
+# POPTS='$(CCLNXCZOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  -o$(OUT_DIR)/cz_db.$(OBJ) $(COPTS) $(IOPTS) $(POPTS) $(CCczFLAGS) \
+
+###################### libcz ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libcz
+
+enb_cz := x2ap
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_cz)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_cz)/cz_ex_pt.c,$(LOCAL_SRC_FILES))
+# main()
+LOCAL_SRC_FILES := $(filter-out $(enb_cz)/cz_tst.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXCZOPTS) $(CCczFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product EG - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCegFLAGS=-DEGTP_U -DLCHIT -DLCEGLIHIT -DEU
+
+######################
+
+$(BLD_LNX_EG_OBJS1):
+	@$(MAKE) -f eg.mak $(CPUH_OBJ)/libeg.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXEGOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(EG_DIR)' IN_DIR='$(EG_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXEGOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  -o$(OUT_DIR)/eg_cpm.$(OBJ) $(COPTS) $(IOPTS) $(POPTS) $(CCegFLAGS) \
+
+###################### libeg ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libeg
+
+enb_eg := egtpu
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_eg)/*.c))
+# main()
+LOCAL_SRC_FILES := $(filter-out $(enb_eg)/eg_tst.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXEGOPTS) $(CCegFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product HI - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CChiFLAGS=-USZ
+
+######################
+
+$(BLD_LNX_HI_OBJS1):
+	@$(MAKE) -f hi.mak $(CPUH_OBJ)/libhi.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXHIOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(HI_DIR)' IN_DIR='$(HI_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXHIOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  -o$(OUT_DIR)/hi_bdy1.$(OBJ) $(COPTS) $(IOPTS) $(POPTS) $(CChiFLAGS) \
+
+###################### libhi ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libhi
+
+enb_hi := tucl
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_hi)/*.c))
+# main()
+LOCAL_SRC_FILES := $(filter-out $(enb_hi)/hi_tst.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXHIOPTS) $(CChiFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product NH - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCnhFLAGS=-UKW -UPJ
+
+######################
+
+$(BLD_LNX_NH_OBJS1):
+	@$(MAKE) -f nh.mak $(CPUH_OBJ)/libnh.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXNHOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(NH_DIR)' IN_DIR='$(NH_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXNHOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  -o$(OUT_DIR)/nh_brm.$(OBJ) $(COPTS) $(IOPTS) $(POPTS) $(CCnhFLAGS) \
+
+###################### libnh ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libnh
+
+enb_nh := lterrc
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_nh)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_nh)/nh_ex_pt.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_nh)/nh_tst.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXNHOPTS) $(CCnhFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product SB - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCsbFLAGS=
+
+######################
+
+$(BLD_LNX_SB_OBJS1):
+	@$(MAKE) -f sb.mak $(CPUH_OBJ)/libsb.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXSBOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(SB_DIR)' IN_DIR='$(SB_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXSBOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  -o$(OUT_DIR)/sb_bdy1.$(OBJ) $(COPTS) $(IOPTS) $(POPTS) $(CCsbFLAGS) \
+
+###################### libsb ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libsb
+
+enb_sb := sctp
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_sb)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_sb)/sb_ex_pt.c,$(LOCAL_SRC_FILES))
+# main()
+LOCAL_SRC_FILES := $(filter-out $(enb_sb)/sb_tst.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSBOPTS) $(CCsbFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product SZ - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCszFLAGS=-DLCLSZ -DLCSCT -DSZ -DSM -US1AP_REL851 -DLSZV1 -DS1AP_REL9A6
+
+######################
+
+$(BLD_LNX_SZ_OBJS1):
+	@$(MAKE) -f sz.mak $(CPUH_OBJ)/libsz.a COPTS=$(LNX_CFLAG_CPUH) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXSZOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(SZ_DIR)' IN_DIR='$(SZ_DIR)' \
+	OUT_DIR='$(CPUH_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUH)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXSZOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC)  -o$(OUT_DIR)/sz_db.$(OBJ) $(COPTS) $(IOPTS) $(POPTS) $(CCszFLAGS) \
+
+###################### libsz ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libsz
+
+enb_sz := s1ap
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_sz)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_sz)/sz_dbr8.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_sz)/sz_dbr9.c,$(LOCAL_SRC_FILES))
+# main()
+LOCAL_SRC_FILES := $(filter-out $(enb_sz)/sz_tst.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+###################### enb_cpuh ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := enb_cpuh
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+#LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
+
+#mipsel-unknown-linux-gnu-gcc -g -o ./obj/enb_cpuh ./obj/cpuh/*.o    \
+    -lprcl1 -lprcl1_ns -lprc_commons -lprcl1 -lprcl1_ns -lprc_commons -ldl \
+    -EL -lrt -lm -lpthread -g -pipe -pedantic -Wall -Werror -Wno-comment -Wshadow -Wcast-qual -fno-strict-aliasing -fsigned-char -lstdc++ -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPU_COMMONS/lib -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPUL/LTE_L1/builds/rio -L/lib -L./lib -lrm
+
+LOCAL_STATIC_LIBRARIES += librm
+
+LOCAL_STATIC_LIBRARIES += libcz
+LOCAL_STATIC_LIBRARIES += libe2elnxwr
+LOCAL_STATIC_LIBRARIES += libeg
+LOCAL_STATIC_LIBRARIES += libhi
+LOCAL_STATIC_LIBRARIES += libnh
+LOCAL_STATIC_LIBRARIES += librl
+LOCAL_STATIC_LIBRARIES += libsb
+LOCAL_STATIC_LIBRARIES += libsz
+
+LOCAL_STATIC_LIBRARIES += libmt
+LOCAL_STATIC_LIBRARIES += libmtsec
+
+LOCAL_STATIC_LIBRARIES += libcm
+
+#   new file:   enbapp/build/obj/cpuh/libcm.a
+#   new file:   enbapp/build/obj/cpuh/libcpuh.a
+#   new file:   enbapp/build/obj/cpuh/libcz.a
+#   new file:   enbapp/build/obj/cpuh/libe2elnxwr.a
+#   new file:   enbapp/build/obj/cpuh/libeg.a
+#   new file:   enbapp/build/obj/cpuh/libhi.a
+#   new file:   enbapp/build/obj/cpuh/libmt.a
+#   new file:   enbapp/build/obj/cpuh/libnh.a
+#   new file:   enbapp/build/obj/cpuh/librl.a
+#   new file:   enbapp/build/obj/cpuh/libsb.a
+#   new file:   enbapp/build/obj/cpuh/libsz.a
+
+LOCAL_STATIC_LIBRARIES += libprcl1 libprcl1_ns
+LOCAL_STATIC_LIBRARIES += libprc_commons
+
+LOCAL_LDFLAGS += -EL# -lrt -lm -lpthread
+LOCAL_LDLIBS += -lrt -lpthread
+
+#include $(BUILD_EXECUTABLE)
