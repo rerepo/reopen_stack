@@ -853,23 +853,52 @@ LOCAL_LDLIBS += -lrt -lpthread
 include $(BUILD_EXECUTABLE)
 
 
-###################### libmt_l ######################
+###################### enb_cpul ######################
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := libmt_l
+#LOCAL_MODULE := libmt_l
+LOCAL_MODULE := enb_cpul
 
 enb_mt := mt
 
 LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_mt)/*.c))
 LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_acc.c,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_rtr.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_mt)/mt_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXMTOPTS) $(CCmtFLAGS)
 
-include $(BUILD_STATIC_LIBRARY)
+LOCAL_STATIC_LIBRARIES += libur
+LOCAL_STATIC_LIBRARIES += libpj
+LOCAL_STATIC_LIBRARIES += libkw
+LOCAL_STATIC_LIBRARIES += librg
+
+#LOCAL_STATIC_LIBRARIES += libmt_l
+
+LOCAL_STATIC_LIBRARIES += libcm_l
+
+#   new file:   enbapp/build/obj/cpul/libcm.a
+#   new file:   enbapp/build/obj/cpul/libcpul.a
+#   new file:   enbapp/build/obj/cpul/libkw.a
+#   new file:   enbapp/build/obj/cpul/libmt.a
+#   new file:   enbapp/build/obj/cpul/libpj.a
+#   new file:   enbapp/build/obj/cpul/librg.a
+#   new file:   enbapp/build/obj/cpul/libur.a
+
+LOCAL_STATIC_LIBRARIES += libprcl1 libprcl1_ns
+LOCAL_STATIC_LIBRARIES += libprc_commons
+
+LOCAL_LDFLAGS += -EL# -lrt -lm -lpthread
+LOCAL_LDLIBS += -lrt -lpthread
+
+#mipsel-unknown-linux-gnu-gcc -g -o ./obj/enb_cpul ./obj/cpul/*.o    \
+    -lprcl1 -lprcl1_ns -lprc_commons -lprcl1 -lprcl1_ns -lprc_commons  \
+    -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPU_COMMONS/lib -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPUL/LTE_L1/builds/rio -L/lib -EL -lrt -lm -lpthread -L./lib -lrm
+
+include $(BUILD_EXECUTABLE)
 
 
 #-------------------------------------------------------------#
@@ -1131,5 +1160,188 @@ LOCAL_SRC_FILES := $(filter-out $(enb_sz)/sz_tst.c,$(LOCAL_SRC_FILES))
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product ib - script generated.
+#Only the $(CCib) may be modified.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCkwFLAGS= -UKW_PDCP -UNH -USM -DPTPJLIB -DLTE_HENB  \
+       -UKW_BG_DL_PROC -UKW_BG_UL_PROC -DERRCLS_INT_PAR\
+       -DSS_MT_TMR -DLCUDX -DLWLCKWULUDX -DLCKWULUDX
+
+######################
+
+$(BLD_LNX_KW_OBJS):
+	@$(MAKE) -f kw_split.mak $(CPUL_OBJ)/libkw.a COPTS=$(LNX_CFLAG_CPUL) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXKWOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(KW_DIR)' IN_DIR='$(KW_DIR)' \
+	OUT_DIR='$(CPUL_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+	
+# COPTS=$(LNX_CFLAG_CPUL)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXKWOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC) -c $(COPTS) $(IOPTS) $(POPTS) $(CCkwFLAGS) $(IN_DIR)/kw_amm_ul.$(SRC) -o \
+
+###################### libkw ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libkw
+
+enb_kw := lterlc
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_kw)/*.c))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXKWOPTS) $(CCkwFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product ib - script generated.
+#Only the $(CCib) may be modified.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCpjFLAGS= -UKW_PDCP -UNH -USM -DPJ -DPX -DPTPJLIB -DLTE_HENB  -DKW_BG_DL_PROC -DKW_BG_UL_PROC  -DSS_MT_TMR
+
+# Product objects-------------------------------------------------------
+#ifeq ($(SEC_FLAG),-DTENB_AS_SECURITY)
+ifeq ($(TENB_AS_SECURITY),-DTENB_AS_SECURITY)
+$(warning TENB_AS_SECURITY == $(TENB_AS_SECURITY))
+endif
+
+######################
+
+$(BLD_LNX_PJ_OBJS):
+	@$(MAKE) -f pj.mak $(CPUL_OBJ)/libpj.a COPTS=$(LNX_CFLAG_CPUL) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXPJOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(PJ_DIR)' IN_DIR='$(PJ_DIR)' \
+	OUT_DIR='$(CPUL_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c" SEC_FLAG='$(TENB_AS_SECURITY)'
+	
+# COPTS=$(LNX_CFLAG_CPUL)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXPJOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC) -c $(COPTS) $(IOPTS) $(POPTS) $(CCpjFLAGS) $(IN_DIR)/pj_lim.c -o \
+
+###################### libpj ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libpj
+
+enb_pj := ltepdcp
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_pj)/*.c))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXPJOPTS) $(CCpjFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product RG - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+# Including RG_PHASE2_SCHED for supporting more than one schedulers 
+# supported by mac
+CCrgFLAGS=-DRGM_LC -DRGM_LWLC -DTFU_VER_2 -UTFU_TDD -USM -ULTE_TDD -DTF -DSS_FLOAT -DSS_MT_TMR \
+           -URG_DEBUG -DxRG_PHASE2_SCHED -DxRGR_V1 -DxRG_UL_DELTA=2 -DLTEMAC_DLUE_TMGOPTMZ -DTENB_SPLIT_ARCH -DRM_INTF 
+
+######################
+ 
+$(BLD_LNX_RG_OBJS):
+	@$(MAKE) -f rg.mak $(CPUL_OBJ)/librg.a COPTS=$(LNX_CFLAG_CPUL) AR=$(LNX_AR) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXRGOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(RG_DIR)' IN_DIR='$(RG_DIR)' \
+	OUT_DIR='$(CPUL_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUL)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXRGOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC) -c  -o$(OUT_DIR)/rg_cfg.$(OBJ) $(COPTS) $(IOPTS) $(POPTS) $(CCrgFLAGS) \
+
+###################### librg ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := librg
+
+enb_rg := ltemac
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_rg)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_rg)/rg_ex_pt.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_rg)/rg_tmr.c,$(LOCAL_SRC_FILES))
+# main()
+LOCAL_SRC_FILES := $(filter-out $(enb_rg)/rg_tst.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXRGOPTS) $(CCrgFLAGS)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+#-------------------------------------------------------------#
+#Makefile for product TF - script generated.
+#-------------------------------------------------------------#
+
+#-------------------------------------------------------------#
+#User macros (to be modified)
+#-------------------------------------------------------------#
+
+CCysFLAGS=-DTF -DYS -UDEBUG -DLCCTF -DLCYSUITFU -DLCTFU -DLCTFUITFU -DTFU_VER_2 -DNOFILESYS \
+          -UTFU_TDD -DRG -DLCYSUICTF -DAPI_MAIN -DLCYSMILYS -DLCLYS -UDEBUGP -DTFU_UPGRADE -DYS_FS \
+          -UYS_FS_DBG_L1MSG_DUMP -UYS_FS_DEBUG -ULTEFAPI_DISSECTOR -USM
+
+######################
+
+$(BLD_LNX_UR_OBJS):
+	@$(MAKE) -f ur.mak $(CPUL_OBJ)/libur.a COPTS=$(LNX_CFLAG_CPUL) \
+	LOPTS='$(LNXLOPTS)' POPTS='$(CCLNXTFOPTS)' IOPTS='$(LNXIOPTS)' VS_DIR='$(UR_DIR)' IN_DIR='$(UR_DIR)' \
+	OUT_DIR='$(CPUL_OBJ)' OBJ='$(OBJ)' CC='$(CC) -c' LL='$(LL)' CM_INC='$(CM_INC)' SRC="c"
+
+# COPTS=$(LNX_CFLAG_CPUL)
+# LOPTS='$(LNXLOPTS)' [no]
+# POPTS='$(CCLNXTFOPTS)'
+# IOPTS='$(LNXIOPTS)'
+
+#	$(CC) -c $(COPTS) $(IOPTS) $(POPTS) $(CCysFLAGS) $(IN_DIR)/ur_l1cl.c -o \
+
+###################### libur ######################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libur
+
+enb_ur := lteclbrcm
+
+LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_ur)/*.c))
+LOCAL_SRC_FILES := $(filter-out $(enb_ur)/ur_stub.c,$(LOCAL_SRC_FILES))
+
+#LOCAL_C_INCLUDES += $(l1_includes)
+
+LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
+LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXTFOPTS) $(CCysFLAGS)
 
 include $(BUILD_STATIC_LIBRARY)
