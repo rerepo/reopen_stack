@@ -396,7 +396,7 @@ $(BLD_LNX_WR_E2E_OBJS1):
 ###################### libe2elnxwr ######################
 include $(CLEAR_VARS)
 
-#LOCAL_MODULE := libe2elnxwr
+LOCAL_MODULE := libe2elnxwr
 
 enb_wr := enbapp/src
 
@@ -438,49 +438,7 @@ LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_lwr.o,-DLW
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_emm_anr.o $(enb_wr)/wr_emm_ecsfb_anr.o,-DDG)
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_wr)/wr_smm_tmr.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
 
-#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_sec)/wr_smm_tmr.o,$(COPTS_NO_WARN))
-#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_sec)/wr_smm_tmr.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
-#LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_sec)/wr_smm_tmr.o,-DLCSMYSMILYS -DLCYSMILYS -DLCLYS)
-
-#LOCAL_CFLAGS := $(sort $(LOCAL_CFLAGS))
-
-#include $(BUILD_STATIC_LIBRARY)
-
-
-###################### enb_cpuh ######################
-#include $(CLEAR_VARS)
-
-LOCAL_MODULE := enb_cpuh
-
-#LOCAL_C_INCLUDES += $(l1_includes)
-
-#LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
-#LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
-
-LOCAL_STATIC_LIBRARIES += librm
-
-LOCAL_STATIC_LIBRARIES += libcz
-#LOCAL_STATIC_LIBRARIES += libe2elnxwr
-LOCAL_STATIC_LIBRARIES += libeg
-LOCAL_STATIC_LIBRARIES += libhi
-LOCAL_STATIC_LIBRARIES += libnh
-LOCAL_STATIC_LIBRARIES += librl
-LOCAL_STATIC_LIBRARIES += libsb
-LOCAL_STATIC_LIBRARIES += libsz
-
-LOCAL_STATIC_LIBRARIES += libmt
-LOCAL_STATIC_LIBRARIES += libmtsec
-
-LOCAL_STATIC_LIBRARIES += libcm
-
-
-LOCAL_STATIC_LIBRARIES += libprcl1 libprcl1_ns
-LOCAL_STATIC_LIBRARIES += libprc_commons
-
-LOCAL_LDFLAGS += -EL# -lrt -lm -lpthread
-LOCAL_LDLIBS += -lrt -lpthread
-
-include $(BUILD_EXECUTABLE)
+include $(BUILD_STATIC_LIBRARY)
 
 
 ######################
@@ -835,23 +793,64 @@ $(BLD_LNX_SS_OBJS):
 
 #	$(CC) -c -o $(OUT_DIR)/mt_id.o $(COPTS) $(IOPTS) $(POPTS) $(CCmtFLAGS) $(IN_DIR)/mt_id.c
 
-###################### libmt ######################
+###################### enb_cpuh ######################
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := libmt
+#LOCAL_MODULE := libmt
+LOCAL_MODULE := enb_cpuh
 
 enb_mt := mt
 
 LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_mt)/*.c))
 LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_acc.c,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_rtr.c,$(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(filter-out $(enb_mt)/mt_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXMTOPTS) $(CCmtFLAGS)
 
-include $(BUILD_STATIC_LIBRARY)
+LOCAL_STATIC_LIBRARIES += libe2elnxwr
+
+LOCAL_STATIC_LIBRARIES += librm
+
+LOCAL_STATIC_LIBRARIES += libcz
+LOCAL_STATIC_LIBRARIES += libeg
+LOCAL_STATIC_LIBRARIES += libhi
+LOCAL_STATIC_LIBRARIES += libnh
+LOCAL_STATIC_LIBRARIES += librl
+LOCAL_STATIC_LIBRARIES += libsb
+LOCAL_STATIC_LIBRARIES += libsz
+
+#LOCAL_STATIC_LIBRARIES += libmt
+LOCAL_STATIC_LIBRARIES += libmtsec
+
+LOCAL_STATIC_LIBRARIES += libcm
+
+#   new file:   enbapp/build/obj/cpuh/libcm.a
+#   new file:   enbapp/build/obj/cpuh/libcpuh.a
+#   new file:   enbapp/build/obj/cpuh/libcz.a
+#   new file:   enbapp/build/obj/cpuh/libe2elnxwr.a
+#   new file:   enbapp/build/obj/cpuh/libeg.a
+#   new file:   enbapp/build/obj/cpuh/libhi.a
+#   new file:   enbapp/build/obj/cpuh/libmt.a
+#   new file:   enbapp/build/obj/cpuh/libnh.a
+#   new file:   enbapp/build/obj/cpuh/librl.a
+#   new file:   enbapp/build/obj/cpuh/libsb.a
+#   new file:   enbapp/build/obj/cpuh/libsz.a
+
+LOCAL_STATIC_LIBRARIES += libprcl1 libprcl1_ns
+LOCAL_STATIC_LIBRARIES += libprc_commons
+
+LOCAL_LDFLAGS += -EL# -lrt -lm -lpthread
+LOCAL_LDLIBS += -lrt -lpthread
+
+#mipsel-unknown-linux-gnu-gcc -g -o ./obj/enb_cpuh ./obj/cpuh/*.o    \
+    -lprcl1 -lprcl1_ns -lprc_commons -lprcl1 -lprcl1_ns -lprc_commons -ldl \
+    -EL -lrt -lm -lpthread -g -pipe -pedantic -Wall -Werror -Wno-comment -Wshadow -Wcast-qual -fno-strict-aliasing -fsigned-char -lstdc++ -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPU_COMMONS/lib -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPUL/LTE_L1/builds/rio -L/lib -L./lib -lrm
+    
+include $(BUILD_EXECUTABLE)
 
 
 ###################### libmt_l ######################
@@ -1134,54 +1133,3 @@ LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
 
 include $(BUILD_STATIC_LIBRARY)
-
-
-###################### enb_cpuh ######################
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := enb_cpuh
-
-#LOCAL_C_INCLUDES += $(l1_includes)
-
-LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
-#LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
-
-#mipsel-unknown-linux-gnu-gcc -g -o ./obj/enb_cpuh ./obj/cpuh/*.o    \
-    -lprcl1 -lprcl1_ns -lprc_commons -lprcl1 -lprcl1_ns -lprc_commons -ldl \
-    -EL -lrt -lm -lpthread -g -pipe -pedantic -Wall -Werror -Wno-comment -Wshadow -Wcast-qual -fno-strict-aliasing -fsigned-char -lstdc++ -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPU_COMMONS/lib -L../../ltephybrcm/L1_SRC_Files/host_sw/releases/LTE_L1_LTE_L1_1.14.11/CPUL/LTE_L1/builds/rio -L/lib -L./lib -lrm
-
-LOCAL_STATIC_LIBRARIES += librm
-
-LOCAL_STATIC_LIBRARIES += libcz
-LOCAL_STATIC_LIBRARIES += libe2elnxwr
-LOCAL_STATIC_LIBRARIES += libeg
-LOCAL_STATIC_LIBRARIES += libhi
-LOCAL_STATIC_LIBRARIES += libnh
-LOCAL_STATIC_LIBRARIES += librl
-LOCAL_STATIC_LIBRARIES += libsb
-LOCAL_STATIC_LIBRARIES += libsz
-
-LOCAL_STATIC_LIBRARIES += libmt
-LOCAL_STATIC_LIBRARIES += libmtsec
-
-LOCAL_STATIC_LIBRARIES += libcm
-
-#   new file:   enbapp/build/obj/cpuh/libcm.a
-#   new file:   enbapp/build/obj/cpuh/libcpuh.a
-#   new file:   enbapp/build/obj/cpuh/libcz.a
-#   new file:   enbapp/build/obj/cpuh/libe2elnxwr.a
-#   new file:   enbapp/build/obj/cpuh/libeg.a
-#   new file:   enbapp/build/obj/cpuh/libhi.a
-#   new file:   enbapp/build/obj/cpuh/libmt.a
-#   new file:   enbapp/build/obj/cpuh/libnh.a
-#   new file:   enbapp/build/obj/cpuh/librl.a
-#   new file:   enbapp/build/obj/cpuh/libsb.a
-#   new file:   enbapp/build/obj/cpuh/libsz.a
-
-LOCAL_STATIC_LIBRARIES += libprcl1 libprcl1_ns
-LOCAL_STATIC_LIBRARIES += libprc_commons
-
-LOCAL_LDFLAGS += -EL# -lrt -lm -lpthread
-LOCAL_LDLIBS += -lrt -lpthread
-
-#include $(BUILD_EXECUTABLE)
