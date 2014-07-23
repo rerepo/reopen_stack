@@ -611,6 +611,9 @@ LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXCMOPTS) $(_cm_CCcmFLAGS)
 
 LOCAL_OBJECT_FLAGS_APPEND := $(call convert-object-flags,$(enb_cm)/ckw.o,$(_cm_CKWOPTS))
 
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/sm_bdy1.o,$(_cm_CCsmFLAGS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/sm_ex_ms.o,$(_cm_CCsmFLAGS))
+
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cm_tpt.o,$(_cm_SCTOPTS))
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cpj.o,$(_cm_CPJOPTS))
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/crg.o,$(_cm_CRGOPTS))
@@ -678,6 +681,9 @@ LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXCMOPTS) $(_cm_CCcmFLAGS)
 
 LOCAL_OBJECT_FLAGS_APPEND := $(call convert-object-flags,$(enb_cm)/ckw.o,$(_cm_CKWOPTS))
+
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/sm_bdy1.o,$(_cm_CCsmFLAGS))
+LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/sm_ex_ms.o,$(_cm_CCsmFLAGS))
 
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cm_tpt.o,$(_cm_SCTOPTS))
 LOCAL_OBJECT_FLAGS_APPEND += $(call convert-object-flags,$(enb_cm)/cpj.o,$(_cm_CPJOPTS))
