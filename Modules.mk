@@ -1,5 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 
+mod_stack_preproc := true
+
 #-----------------------------------------------------------------------
 # macro for output file name and makefile name
 #
@@ -415,6 +417,10 @@ endif
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXWROPTS) $(CCwrFLAGS)
 
@@ -453,6 +459,10 @@ LOCAL_MODULE := libmtsec
 enb_sec := mt/security
 
 LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_sec)/*.c))
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(COPTS_NO_WARN) $(LNXIOPTS) $(CCLNXWROPTS) $(CCwrFLAGS)
@@ -503,6 +513,10 @@ LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_r
 #LOCAL_SRC_FILES := $(filter-out $(enb_wr)/wr_mi.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNXIOPTS) $(CCLNXWROPTS) $(_rm_CCrmFLAGS)
@@ -606,6 +620,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_cm)/ss_ptsp.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXCMOPTS) $(_cm_CCcmFLAGS)
 
@@ -676,6 +694,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_cm)/lve.c,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out $(enb_cm)/ss_ptsp.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXCMOPTS) $(_cm_CCcmFLAGS)
@@ -758,6 +780,10 @@ LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_r
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXCMOPTS)
 
@@ -813,6 +839,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_rtr.c,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out $(enb_mt)/mt_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXMTOPTS) $(CCmtFLAGS)
@@ -873,6 +903,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_mt)/ss_rtr.c,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out $(enb_mt)/mt_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXMTOPTS) $(CCmtFLAGS)
@@ -946,6 +980,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_cz)/cz_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXCZOPTS) $(CCczFLAGS)
 
@@ -988,6 +1026,10 @@ LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_e
 LOCAL_SRC_FILES := $(filter-out $(enb_eg)/eg_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXEGOPTS) $(CCegFLAGS)
@@ -1032,6 +1074,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_hi)/hi_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXHIOPTS) $(CChiFLAGS)
 
@@ -1074,6 +1120,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_nh)/nh_ex_pt.c,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out $(enb_nh)/nh_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXNHOPTS) $(CCnhFLAGS)
@@ -1118,6 +1168,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_sb)/sb_ex_pt.c,$(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out $(enb_sb)/sb_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSBOPTS) $(CCsbFLAGS)
@@ -1164,6 +1218,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_sz)/sz_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUH) $(LNXIOPTS) $(CCLNXSZOPTS) $(CCszFLAGS)
 
@@ -1207,6 +1265,10 @@ enb_kw := lterlc
 LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_kw)/*.c))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXKWOPTS) $(CCkwFLAGS)
@@ -1256,6 +1318,10 @@ LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_p
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXPJOPTS) $(CCpjFLAGS)
 
@@ -1303,6 +1369,10 @@ LOCAL_SRC_FILES := $(filter-out $(enb_rg)/rg_tst.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
 
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
+
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXRGOPTS) $(CCrgFLAGS)
 
@@ -1346,6 +1416,10 @@ LOCAL_SRC_FILES += $(patsubst $(LOCAL_PATH)/%,%,$(wildcard $(LOCAL_PATH)/$(enb_u
 LOCAL_SRC_FILES := $(filter-out $(enb_ur)/ur_stub.c,$(LOCAL_SRC_FILES))
 
 #LOCAL_C_INCLUDES += $(l1_includes)
+
+ifeq ($(mod_stack_preproc),true)
+LOCAL_C_PREPROC_FLAG := true
+endif
 
 LOCAL_NO_DEFAULT_COMPILER_FLAGS := true
 LOCAL_CFLAGS := $(LNX_CFLAG_CPUL) $(LNXIOPTS) $(CCLNXTFOPTS) $(CCysFLAGS)
